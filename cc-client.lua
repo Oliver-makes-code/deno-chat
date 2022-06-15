@@ -32,23 +32,25 @@ end,
 function ()
     -- Message thread --
     while true do 
-        local message = ws.receive()
-        term.redirect(historyWindow)
-        local parsedMessage = json.parse(message)
-        if (parsedMessage == nil) then break end
-        if (parsedMessage["type"] == "s2c") then
-            if (parsedMessage["name"] == "chat") then
-                local username = parsedMessage["username"]
-                local chatMessage = parsedMessage["message"]
-                print(username..": "..chatMessage)
-            elseif (parsedMessage["name"] == "accept") then
-                if (not parsedMessage["success"]) then 
-                    error("Server denied request.")
+        pcall(parallel.waitForAny, function () 
+            local message = ws.receive()
+            term.redirect(historyWindow)
+            local parsedMessage = json.parse(message)
+            if (parsedMessage == nil) then return end
+            if (parsedMessage["type"] == "s2c") then
+                if (parsedMessage["name"] == "chat") then
+                    local username = parsedMessage["username"]
+                    local chatMessage = parsedMessage["message"]
+                    print(username..": "..chatMessage)
+                elseif (parsedMessage["name"] == "accept") then
+                    if (not parsedMessage["success"]) then 
+                        error("Server denied request.")
+                    end
                 end
             end
-        end
         
-        term.redirect(inputWindow)
+            term.redirect(inputWindow)
+        end)
     end
 end)
 
