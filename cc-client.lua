@@ -23,10 +23,14 @@ inputWindow.restoreCursor()
 
 local ok, err = pcall(parallel.waitForAny,
 function ()
-    -- Input thread --
     while true do
         os.queueEvent("owo_motherfucker")
         os.pullEvent()
+    end
+end,
+function ()
+    -- Input thread --
+    while true do
         local message = read()
         ws.send('{"type":"c2s","name":"chat","message":"'..message..'"}')
     end
@@ -35,8 +39,6 @@ function ()
     -- Message thread --
     while true do 
         pcall(parallel.waitForAny, function () 
-            os.queueEvent("owo_motherfucker2")
-            os.pullEvent()
             local message = ws.receive()
             term.redirect(historyWindow)
             local parsedMessage = json.parse(message)
