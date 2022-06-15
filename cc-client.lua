@@ -26,6 +26,7 @@ function ()
     while true do
         os.queueEvent("owo_motherfucker")
         os.pullEvent()
+        ws.send('{"type":"c2s","name":"ping"}')
     end
 end,
 function ()
