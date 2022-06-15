@@ -11,8 +11,8 @@ ws.send('{"type":"c2s","name":"hello","username":"'..username..'"}')
 
 local w, h = term.getSize()
 local currentTerm = term.current()
-local historyWindow = window.create(currentTerm, 1, 1, w, h)
-local inputWindow = window.create(currentTerm,1,h,w,1)
+local historyWindow = window.create(currentTerm, 1, 1, w, h, true)
+local inputWindow = window.create(currentTerm,1,h,w,1, true)
 historyWindow.setCursorPos(1, h)
 
 term.clear()
@@ -25,6 +25,8 @@ local ok, err = pcall(parallel.waitForAny,
 function ()
     -- Input thread --
     while true do
+        os.queueEvent("owo_motherfucker")
+        os.pullEvent()
         local message = read()
         ws.send('{"type":"c2s","name":"chat","message":"'..message..'"}')
     end
