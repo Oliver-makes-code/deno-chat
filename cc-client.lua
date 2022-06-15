@@ -35,6 +35,8 @@ function ()
     -- Message thread --
     while true do 
         pcall(parallel.waitForAny, function () 
+            os.queueEvent("owo_motherfucker2")
+            os.pullEvent()
             local message = ws.receive()
             term.redirect(historyWindow)
             local parsedMessage = json.parse(message)
