@@ -7,7 +7,7 @@ import Packet from "./packets/Packet.ts"
 
 var users: {
     [client: string]: WebSocketClient|undefined
-}
+} = {}
 
 const wss = new WebSocketServer(8080);
 wss.on("connection", (ws: WebSocketClient) => {
@@ -23,10 +23,14 @@ wss.on("connection", (ws: WebSocketClient) => {
                         var hello = packet as C2SHello
                         var { username } = hello
                         if (users[username]) {
-                            ws.send(JSON.stringify({
-                                success: false
-                            } as S2CAccept))
-                            break
+                            if (!users[username]?.isClosed) {
+                                ws.send(JSON.stringify({
+                                    type: "s2c",
+                                    name: "accept",
+                                    success: false
+                                } as S2CAccept))
+                                break
+                            }
                         }
                         clientUsername = username
                         users[username] = ws
@@ -45,6 +49,7 @@ wss.on("connection", (ws: WebSocketClient) => {
                                 user.send(JSON.stringify({
                                     type: "s2c",
                                     name: "chat",
+                                    username: clientUsername,
                                     message: chat.message
                                 } as S2CChat))
                             }
