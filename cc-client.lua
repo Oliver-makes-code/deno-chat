@@ -23,10 +23,15 @@ inputWindow.restoreCursor()
 
 local ok, err = pcall(parallel.waitForAny,
 function ()
+    local pingCount = 0
     while true do
+        pingCount = pingCount + 1
+        pingCount = pingCount % 400
         os.queueEvent("owo_motherfucker")
         os.pullEvent()
-        ws.send('{"type":"c2s","name":"ping"}')
+        if (pingCount == 0) then
+            ws.send('{"type":"c2s","name":"ping"}')
+        end
     end
 end,
 function ()
