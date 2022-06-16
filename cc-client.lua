@@ -1,6 +1,6 @@
 local json = require("json")
 
-local ws, err = http.websocket("ws://localhost:8080")
+local ws, err = http.websocket("wss://gambitchat.loca.lt")
 if not ws then
     return printError(err)
 end
@@ -36,16 +36,18 @@ function ()
 end,
 function ()
     -- Input thread --
+    local message
     while true do
-        local message = read()
+        message = read()
         ws.send('{"type":"c2s","name":"chat","message":"'..message..'"}')
     end
 end,
 function ()
     -- Message thread --
+    local message
     while true do 
         pcall(parallel.waitForAny, function () 
-            local message = ws.receive()
+            message = ws.receive()
             term.redirect(historyWindow)
             local parsedMessage = json.parse(message)
             if (parsedMessage == nil) then return end
