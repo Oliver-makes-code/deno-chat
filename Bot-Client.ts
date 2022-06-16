@@ -6,6 +6,13 @@ import C2SHello from "./packets/C2SHello.ts"
 import S2CAccept from "./packets/S2CAccept.ts"
 import Packet from "./packets/Packet.ts"
 
+interface pkMessage {
+    member?: {
+        name: string
+        display_name?: string
+    }
+}
+
 import {
     Client,
     Message,
@@ -28,13 +35,30 @@ const channelId = "986707089311297569"
 
 var ws: WebSocketClient = new StandardWebSocketClient("wss://gambitchat.loca.lt")
 
-client.on('messageCreate', (msg: Message): void => {
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+client.on('messageCreate', async (msg: Message): Promise<void> => {
     if (msg.author.id == client.user?.id) return
-    ws.send(JSON.stringify({
-        type: "c2s",
-        name: "chat",
-        message: msg.author.username + ": " + msg.content
-    } as C2SChat))
+    if (msg.author.bot || msg.webhookID) return
+    if (msg.channel.id != channelId) return
+    await sleep(100)
+    var httpData: pkMessage|undefined = await (await fetch("https://api.pluralkit.me/v2/messages/"+msg.id)).json() as pkMessage
+    if (!httpData) {
+        ws.send(JSON.stringify({
+            type: "c2s",
+            name: "chat",
+            message: msg.author.username + ": " + msg.content
+        } as C2SChat))
+    } else {
+        ws.send(JSON.stringify({
+            type: "c2s",
+            name: "chat",
+            message: (httpData.member? httpData.member!.display_name? httpData.member!.display_name!: httpData.member.name: msg.author.username) + ": " + msg.content
+        } as C2SChat))
+    }
+
 })
 
 ws.on("open", async () => {
