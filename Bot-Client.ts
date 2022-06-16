@@ -31,6 +31,7 @@ client.connect(Deno.readTextFileSync("./.token"), [
     GatewayIntents.GUILDS,
     GatewayIntents.GUILD_MESSAGES
 ])
+const guildId = "986707089311297566"
 const channelId = "986707089311297569"
 
 var ws: WebSocketClient = new StandardWebSocketClient("wss://gambitchat.loca.lt")
@@ -89,12 +90,12 @@ const refresh = () => {
         } as C2SHello))
     })
     
-    ws.on("message", (message) => {
+    ws.on("message", async (message) => {
         var packet = JSON.parse(message.data) as Packet
         if (packet.name == "chat") {
             var chatPacket = packet as S2CChat
             if (chatPacket.username == "Discord") return
-            client.channels.fetch(channelId).then((channel) => {
+            (await client.guilds.fetch(guildId)).channels.fetch(channelId).then((channel) => {
                 (channel as TextChannel).send(chatPacket.username + ": " + chatPacket.message)
             })
         }
