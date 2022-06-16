@@ -9,7 +9,7 @@ var users: {
     [client: string]: WebSocketClient|undefined
 } = {}
 
-const wss = new WebSocketServer(8081);
+const wss = new WebSocketServer(8180);
 wss.on("connection", (ws: WebSocketClient) => {
     var clientUsername: string|undefined
     ws.on("message", (message: string) => {
